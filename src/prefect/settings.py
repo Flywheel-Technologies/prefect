@@ -321,10 +321,7 @@ def max_log_size_smaller_than_batch_size(values):
     """
     Validator for settings asserting the batch size and match log size are compatible
     """
-    if (
-        values["PREFECT_LOGGING_TO_API_BATCH_SIZE"]
-        < values["PREFECT_LOGGING_TO_API_MAX_LOG_SIZE"]
-    ):
+    if values["PREFECT_LOGGING_TO_API_BATCH_SIZE"] < values["PREFECT_LOGGING_TO_API_MAX_LOG_SIZE"]:
         raise ValueError(
             "`PREFECT_LOGGING_TO_API_MAX_LOG_SIZE` cannot be larger than"
             " `PREFECT_LOGGING_TO_API_BATCH_SIZE`"
@@ -340,10 +337,7 @@ def warn_on_database_password_value_without_usage(values):
     if (
         value
         and not value.startswith(OBFUSCATED_PREFIX)
-        and (
-            "PREFECT_API_DATABASE_PASSWORD"
-            not in values["PREFECT_API_DATABASE_CONNECTION_URL"]
-        )
+        and ("PREFECT_API_DATABASE_PASSWORD" not in values["PREFECT_API_DATABASE_CONNECTION_URL"])
     ):
         warnings.warn(
             "PREFECT_API_DATABASE_PASSWORD is set but not included in the "
@@ -427,9 +421,7 @@ def default_cloud_ui_url(settings, value):
     ui_url = api_url = PREFECT_CLOUD_API_URL.value_from(settings)
 
     if api_url.startswith("https://api.prefect.cloud"):
-        ui_url = ui_url.replace(
-            "https://api.prefect.cloud", "https://app.prefect.cloud", 1
-        )
+        ui_url = ui_url.replace("https://api.prefect.cloud", "https://app.prefect.cloud", 1)
 
     if ui_url.endswith("/api"):
         ui_url = ui_url[:-4]
@@ -755,6 +747,14 @@ PREFECT_LOGGING_SETTINGS_PATH = Setting(
     default=Path("${PREFECT_HOME}") / "logging.yml",
     value_callback=template_with_settings(PREFECT_HOME),
 )
+
+"""The path to a pickled logging config dictionary to load logging settings from"""
+
+PREFECT_LOGGING_SETTINGS_DICT_PATH = Setting(
+    Path,
+    default=None,
+)
+
 """
 The path to a custom YAML logging configuration file. If
 no file is found, the default `logging.yml` is used.
@@ -1411,9 +1411,7 @@ PREFECT_ORION_SERVICES_SCHEDULER_DEPLOYMENT_BATCH_SIZE = Setting(
     default=None,
     deprecated=True,
     deprecated_start_date="Feb 2023",
-    deprecated_help=(
-        "Use `PREFECT_API_SERVICES_SCHEDULER_DEPLOYMENT_BATCH_SIZE` instead."
-    ),
+    deprecated_help=("Use `PREFECT_API_SERVICES_SCHEDULER_DEPLOYMENT_BATCH_SIZE` instead."),
     deprecated_renamed_to=PREFECT_API_SERVICES_SCHEDULER_DEPLOYMENT_BATCH_SIZE,
 )
 """
@@ -1509,9 +1507,7 @@ PREFECT_ORION_SERVICES_PAUSE_EXPIRATIONS_LOOP_SECONDS = Setting(
     default=None,
     deprecated=True,
     deprecated_start_date="Feb 2023",
-    deprecated_help=(
-        "Use `PREFECT_API_SERVICES_PAUSE_EXPIRATIONS_LOOP_SECONDS` instead."
-    ),
+    deprecated_help=("Use `PREFECT_API_SERVICES_PAUSE_EXPIRATIONS_LOOP_SECONDS` instead."),
     deprecated_renamed_to=PREFECT_API_SERVICES_PAUSE_EXPIRATIONS_LOOP_SECONDS,
 )
 """
@@ -1523,9 +1519,7 @@ PREFECT_ORION_SERVICES_CANCELLATION_CLEANUP_LOOP_SECONDS = Setting(
     default=None,
     deprecated=True,
     deprecated_start_date="Feb 2023",
-    deprecated_help=(
-        "Use `PREFECT_API_SERVICES_CANCELLATION_CLEANUP_LOOP_SECONDS` instead."
-    ),
+    deprecated_help=("Use `PREFECT_API_SERVICES_CANCELLATION_CLEANUP_LOOP_SECONDS` instead."),
     deprecated_renamed_to=PREFECT_API_SERVICES_CANCELLATION_CLEANUP_LOOP_SECONDS,
 )
 """
@@ -1646,9 +1640,7 @@ PREFECT_ORION_SERVICES_FLOW_RUN_NOTIFICATIONS_ENABLED = Setting(
     default=None,
     deprecated=True,
     deprecated_start_date="Feb 2023",
-    deprecated_help=(
-        "Use `PREFECT_API_SERVICES_FLOW_RUN_NOTIFICATIONS_ENABLED` instead."
-    ),
+    deprecated_help=("Use `PREFECT_API_SERVICES_FLOW_RUN_NOTIFICATIONS_ENABLED` instead."),
     deprecated_renamed_to=PREFECT_API_SERVICES_FLOW_RUN_NOTIFICATIONS_ENABLED,
 )
 """
@@ -1710,10 +1702,7 @@ SettingsFieldsMixin = create_model(
     "SettingsFieldsMixin",
     # Inheriting from `BaseSettings` provides environment variable loading
     __base__=BaseSettings,
-    **{
-        setting.name: (setting.type, setting.field)
-        for setting in SETTING_VARIABLES.values()
-    },
+    **{setting.name: (setting.type, setting.field) for setting in SETTING_VARIABLES.values()},
 )
 
 
@@ -1852,9 +1841,7 @@ class Settings(SettingsFieldsMixin):
         # Validate the types of items in `include` to prevent exclusion bugs
         for key in include:
             if not isinstance(key, Setting):
-                raise TypeError(
-                    "Invalid type {type(key).__name__!r} for key in `include`."
-                )
+                raise TypeError("Invalid type {type(key).__name__!r} for key in `include`.")
 
         env = {
             # Use `getattr` instead of `value_of` to avoid value callback resolution
@@ -1966,9 +1953,7 @@ def temporary_settings(
         updates=updates, set_defaults=set_defaults, restore_defaults=restore_defaults
     )
 
-    with prefect.context.SettingsContext(
-        profile=context.profile, settings=new_settings
-    ):
+    with prefect.context.SettingsContext(profile=context.profile, settings=new_settings):
         yield new_settings
 
 
@@ -2025,9 +2010,7 @@ class Profile(pydantic.BaseModel):
                 and setting.deprecated_renamed_to
                 and setting.deprecated_renamed_to not in self.settings
             ):
-                self.settings[setting.deprecated_renamed_to] = self.settings.pop(
-                    setting
-                )
+                self.settings[setting.deprecated_renamed_to] = self.settings.pop(setting)
                 changed.append((setting, setting.deprecated_renamed_to))
         return changed
 
@@ -2044,9 +2027,7 @@ class ProfilesCollection:
     The collection may store the name of the active profile.
     """
 
-    def __init__(
-        self, profiles: Iterable[Profile], active: Optional[str] = None
-    ) -> None:
+    def __init__(self, profiles: Iterable[Profile], active: Optional[str] = None) -> None:
         self.profiles_by_name = {profile.name: profile for profile in profiles}
         self.active_name = active
 
@@ -2122,9 +2103,7 @@ class ProfilesCollection:
         If the profile name already exists, an exception will be raised.
         """
         if profile.name in self.profiles_by_name:
-            raise ValueError(
-                f"Profile name {profile.name!r} already exists in collection."
-            )
+            raise ValueError(f"Profile name {profile.name!r} already exists in collection.")
 
         self.profiles_by_name[profile.name] = profile
 
@@ -2141,11 +2120,7 @@ class ProfilesCollection:
         Returns a new collection.
         """
         return ProfilesCollection(
-            [
-                profile
-                for profile in self.profiles_by_name.values()
-                if profile.source != path
-            ],
+            [profile for profile in self.profiles_by_name.values() if profile.source != path],
             active=self.active_name,
         )
 
@@ -2156,9 +2131,7 @@ class ProfilesCollection:
         return {
             "active": self.active_name,
             "profiles": {
-                profile.name: {
-                    setting.name: value for setting, value in profile.settings.items()
-                }
+                profile.name: {setting.name: value for setting, value in profile.settings.items()}
                 for profile in self.profiles_by_name.values()
             },
         }
@@ -2176,10 +2149,7 @@ class ProfilesCollection:
         if not isinstance(__o, ProfilesCollection):
             return False
 
-        return (
-            self.profiles_by_name == __o.profiles_by_name
-            and self.active_name == __o.active_name
-        )
+        return self.profiles_by_name == __o.profiles_by_name and self.active_name == __o.active_name
 
     def __repr__(self) -> str:
         return (

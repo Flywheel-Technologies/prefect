@@ -1,4 +1,5 @@
 import logging
+import pickle
 import logging.config
 import os
 import re
@@ -11,6 +12,7 @@ from typing import Optional
 import yaml
 
 from prefect.settings import (
+    PREFECT_LOGGING_SETTINGS_DICT_PATH,
     PREFECT_LOGGING_EXTRA_LOGGERS,
     PREFECT_LOGGING_SETTINGS_PATH,
     SETTING_VARIABLES,
@@ -72,17 +74,20 @@ def setup_logging(incremental: Optional[bool] = None) -> dict:
 
     # If the user has specified a logging path and it exists we will ignore the
     # default entirely rather than dealing with complex merging
-    config = load_logging_config(
-        (
-            PREFECT_LOGGING_SETTINGS_PATH.value()
-            if PREFECT_LOGGING_SETTINGS_PATH.value().exists()
-            else DEFAULT_LOGGING_SETTINGS_PATH
+    dict_settings_file = PREFECT_LOGGING_SETTINGS_DICT_PATH.value()
+    if dict_settings_file:
+        with open(dict_settings_file, "rb") as f:
+            config = pickle.load(f)
+    else:
+        config = load_logging_config(
+            (
+                PREFECT_LOGGING_SETTINGS_PATH.value()
+                if PREFECT_LOGGING_SETTINGS_PATH.value().exists()
+                else DEFAULT_LOGGING_SETTINGS_PATH
+            )
         )
-    )
 
-    incremental = (
-        incremental if incremental is not None else bool(PROCESS_LOGGING_CONFIG)
-    )
+    incremental = incremental if incremental is not None else bool(PROCESS_LOGGING_CONFIG)
 
     # Perform an incremental update if setup has already been run
     config.setdefault("incremental", incremental)
