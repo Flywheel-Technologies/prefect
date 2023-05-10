@@ -866,7 +866,6 @@ class PrefectClient:
             create_model.concurrency_limit = concurrency_limit
         if priority is not None:
             create_model.priority = priority
-
         data = create_model.dict(json_compatible=True)
         try:
             if work_pool_name is not None:
