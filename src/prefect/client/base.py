@@ -89,7 +89,7 @@ async def app_lifespan_context(app: FastAPI) -> ContextManager[None]:
         else:
             # Create a new lifespan manager
             APP_LIFESPANS[key] = context = LifespanManager(
-                app, startup_timeout=30, shutdown_timeout=30
+                app, startup_timeout=90, shutdown_timeout=90
             )
             APP_LIFESPANS_REF_COUNTS[key] = 1
 
